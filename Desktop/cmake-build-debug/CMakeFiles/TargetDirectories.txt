@@ -1,3 +1,0 @@
-/home/jay/Projects/DSD/Desktop/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/jay/Projects/DSD/Desktop/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/jay/Projects/DSD/Desktop/cmake-build-debug/CMakeFiles/FPGA_TVL1_algorithm.dir
