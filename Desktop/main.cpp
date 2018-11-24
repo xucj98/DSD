@@ -9,7 +9,7 @@ using namespace cv;
 using namespace std;
 
 // parameters
-const std::string img_path = "/home/jay/Datasets/MH_01_pictures/";
+const std::string img_path = "../../Dataset/";
 
 float tau            = 0.25;
 float lambda         = 0.15;
