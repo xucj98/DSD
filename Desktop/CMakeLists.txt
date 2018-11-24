@@ -3,8 +3,6 @@ project(FPGA_TVL1_algorithm)
 
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(/usr/local/opencv2/include)
-
 #add_subdirectory(thirdparty/opencv)
 
 find_package( OpenCV REQUIRED )
