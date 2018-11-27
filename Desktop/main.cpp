@@ -4,6 +4,10 @@
 #include <cmath>
 #include <opencv2/opencv.hpp>
 #include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+#include "BMP.h"
 
 using namespace cv;
 using namespace std;
@@ -687,86 +691,114 @@ void calc(const Mat &I0, const Mat &I1, Mat_<Point2f> &flow)
 
 int main(int argc, char **argv) {
 
-    cv::Mat curr_img;
-    cv::Mat prev_img;
-    cv::Mat show_img;
-    cv::Mat_<cv::Point2f> flow;
-    cv::Mat_<cv::Point2f> cv_flow;
-    cv::Mat error_img(480, 640, CV_8UC1);
+    BMP_FILE curr_bmp;
 
-    curr_img = cv::imread(img_path + "1.jpg");
-    curr_img = curr_img(Rect(0, 0, 640, 480));
-    show_img = curr_img.clone();
-    cv::cvtColor(curr_img, curr_img, cv::COLOR_BGR2GRAY);
+    curr_bmp.file_read((img_path + "1.bmp").c_str());
 
-    std::vector<cv::Point2f> kpts;
+    BMP_output(curr_bmp);
+    cv::Mat curr_img(curr_bmp.info.Height, curr_bmp.info.Width, CV_8UC3);
 
-    cv::goodFeaturesToTrack(curr_img, kpts, 2000, 0.01, 10);
-    prev_img = curr_img;
-
-    for (int i = 2; i < 1000; i++)
-    {
-        curr_img = cv::imread(img_path + std::to_string(i) + ".jpg");
-        curr_img = curr_img(Rect(0, 0, 640, 480));
-        show_img = curr_img.clone();
-
-        cv::cvtColor(curr_img, curr_img, cv::COLOR_BGR2GRAY);
-
-        printf("before calc...\n");
-
-        int t = clock();
-        calc(prev_img, curr_img, flow);
-        printf("calc: %d\n", clock() - t);
-
-        t = clock();
-        cv::Ptr<cv::DenseOpticalFlow> tvl1 = cv::createOptFlow_DualTVL1();
-        tvl1->calc(prev_img, curr_img, cv_flow);
-        printf("opencv calc: %d\n", clock() - t);
-
-        for (int y = 0; y < 480; y++)
-            for (int x = 0; x < 640; x++)
-                error_img.at<uchar>(y, x) = min(255.0, (abs(flow(y, x).x - cv_flow(y, x).x) + abs(flow(y, x).y - cv_flow(y, x).y)) * 5.0);
-        cv::imshow("error img", error_img);
-
-//        for (int y = 0; y < 480; y += 8)
-//        {
-//            for (int x = 0; x < 640; x += 8)
-//            {
-//                printf("(%d, %d) ", int(flow(y, x).x), int(flow(y, x).y));
-//            }
-//            printf("\n");
-//        }
-//        printf("after calc...\n");
-
-        // char ch;
-        // std::cin >> ch;
-
-        int cnt = 0;
-        for (int j = 0; j < kpts.size(); j++) {
-            int x = kpts[j].x;
-            int y = kpts[j].y;
-
-            kpts[j].x += flow(y, x).x;
-            kpts[j].y += flow(y, x).y;
-
-            if (kpts[j].x > 0 && kpts[j].x < 640 && kpts[j].y > 0 && kpts[j].y < 480) {
-                kpts[cnt] = kpts[j];
-
-                cv::circle(show_img, kpts[cnt], 2, cv::Scalar(255, 0, 0), 2);
-
-                cnt++;
-            }
+    for (int i = 0; i < curr_bmp.info.Height; i++)
+        for (int j = 0; j < curr_bmp.info.Width; j++)
+        {
+            int rgb = curr_bmp.get_color(j, i);
+            curr_img.at<cv::Vec3b>(i, j)[0] = rgb & 0xFF;
+            curr_img.at<cv::Vec3b>(i, j)[1] = (rgb >> 8) & 0xFF;
+            curr_img.at<cv::Vec3b>(i, j)[2] = (rgb >> 16) & 0xFF;
         }
-        kpts.resize(cnt);
+    cv::imshow("img", curr_img);
+    cv::waitKey(0);
 
-        cv::imshow("img", show_img);
-        cv::waitKey(0);
-        prev_img.release();
-        show_img.release();
+    curr_bmp.file_write((img_path + "test.bmp").c_str());
 
-        prev_img = curr_img;
+//    cv::Mat curr_img;
+//    cv::Mat prev_img;
+//    cv::Mat show_img;
+//    cv::Mat_<cv::Point2f> flow;
+//    cv::Mat_<cv::Point2f> cv_flow;
+//    cv::Mat error_img(480, 640, CV_8UC1);
+//
+//    curr_img = cv::imread(img_path + "1.jpg");
+//    cv::imwrite(img_path + "1.bmp", curr_img);
+//    curr_img = curr_img(Rect(0, 0, 640, 480));
+//    show_img = curr_img.clone();
+//    cv::cvtColor(curr_img, curr_img, cv::COLOR_BGR2GRAY);
+//
+//    std::vector<cv::Point2f> kpts;
+//
+//    cv::goodFeaturesToTrack(curr_img, kpts, 2000, 0.01, 10);
+//    prev_img = curr_img;
+//
+//    for (int i = 2; i < 20; i++)
+//    {
+//        curr_img = cv::imread(img_path + std::to_string(i) + ".jpg");
+//        // cv::imwrite(img_path + std::to_string(i) + ".bmp", curr_img);
+//        std::cout << 'path: ' << img_path + std::to_string(i) + ".jpg" << std::endl;
+//        std::cout << i << ' ' << curr_img.size() << std::endl;
+//        cv::imshow("curr_img", curr_img);
+//        cv::waitKey(1);
 
-    }
+//        curr_img = curr_img(Rect(0, 0, 640, 480));
+//        show_img = curr_img.clone();
+//
+//        cv::cvtColor(curr_img, curr_img, cv::COLOR_BGR2GRAY);
+//
+//        printf("before calc...\n");
+//
+//        int t = clock();
+//        calc(prev_img, curr_img, flow);
+//        printf("calc: %d\n", clock() - t);
+//
+//        t = clock();
+//        cv::Ptr<cv::DenseOpticalFlow> tvl1 = cv::createOptFlow_DualTVL1();
+//        tvl1->calc(prev_img, curr_img, cv_flow);
+//        printf("opencv calc: %d\n", clock() - t);
+//
+//        for (int y = 0; y < 480; y++)
+//            for (int x = 0; x < 640; x++)
+//                error_img.at<uchar>(y, x) = min(255.0, (abs(flow(y, x).x - cv_flow(y, x).x) + abs(flow(y, x).y - cv_flow(y, x).y)) * 5.0);
+//        cv::imshow("error img", error_img);
+//
+////        for (int y = 0; y < 480; y += 8)
+////        {
+////            for (int x = 0; x < 640; x += 8)
+////            {
+////                printf("(%d, %d) ", int(flow(y, x).x), int(flow(y, x).y));
+////            }
+////            printf("\n");
+////        }
+////        printf("after calc...\n");
+//
+//        // char ch;
+//        // std::cin >> ch;
+//
+//        int cnt = 0;
+//        for (int j = 0; j < kpts.size(); j++) {
+//            int x = kpts[j].x;
+//            int y = kpts[j].y;
+//
+//            kpts[j].x += flow(y, x).x;
+//            kpts[j].y += flow(y, x).y;
+//
+//            if (kpts[j].x > 0 && kpts[j].x < 640 && kpts[j].y > 0 && kpts[j].y < 480) {
+//                kpts[cnt] = kpts[j];
+//
+//                cv::circle(show_img, kpts[cnt], 2, cv::Scalar(255, 0, 0), 2);
+//
+//                cnt++;
+//            }
+//        }
+//        kpts.resize(cnt);
+//
+//        cv::imshow("img", show_img);
+//        cv::waitKey(0);
+//        prev_img.release();
+//        show_img.release();
+//
+//        prev_img = curr_img;
+
+//    }
 
     return 0;
 }
+
