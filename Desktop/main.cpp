@@ -2,14 +2,14 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include "BMP.h"
+#include "Mat.h"
 
-using namespace cv;
+//using namespace cv;
 using namespace std;
 
 // parameters
@@ -63,9 +63,9 @@ Mat_<float> u2y_buf;
 
 void buildFlowMap(const Mat_<float>& u1, const Mat_<float>& u2, Mat_<float>& map1, Mat_<float>& map2)
 {
-    CV_DbgAssert( u2.size() == u1.size() );
-    CV_DbgAssert( map1.size() == u1.size() );
-    CV_DbgAssert( map2.size() == u1.size() );
+//    CV_DbgAssert( u2.size() == u1.size() );
+//    CV_DbgAssert( map1.size() == u1.size() );
+//    CV_DbgAssert( map2.size() == u1.size() );
 
     for (int y = 0; y < u1.rows; y ++)
     {
@@ -89,9 +89,9 @@ void buildFlowMap(const Mat_<float>& u1, const Mat_<float>& u2, Mat_<float>& map
 
 void centeredGradient(const Mat_<float>& src, Mat_<float>& dx, Mat_<float>& dy)
 {
-    CV_DbgAssert( src.rows > 2 && src.cols > 2 );
-    CV_DbgAssert( dx.size() == src.size() );
-    CV_DbgAssert( dy.size() == src.size() );
+//    CV_DbgAssert( src.rows > 2 && src.cols > 2 );
+//    CV_DbgAssert( dx.size() == src.size() );
+//    CV_DbgAssert( dy.size() == src.size() );
 
     const int last_row = src.rows - 1;
     const int last_col = src.cols - 1;
@@ -154,9 +154,9 @@ void centeredGradient(const Mat_<float>& src, Mat_<float>& dx, Mat_<float>& dy)
 
 void forwardGradient(const Mat_<float>& src, Mat_<float>& dx, Mat_<float>& dy)
 {
-    CV_DbgAssert( src.rows > 2 && src.cols > 2 );
-    CV_DbgAssert( dx.size() == src.size() );
-    CV_DbgAssert( dy.size() == src.size() );
+//    CV_DbgAssert( src.rows > 2 && src.cols > 2 );
+//    CV_DbgAssert( dx.size() == src.size() );
+//    CV_DbgAssert( dy.size() == src.size() );
 
     const int last_row = src.rows - 1;
     const int last_col = src.cols - 1;
@@ -201,9 +201,9 @@ void forwardGradient(const Mat_<float>& src, Mat_<float>& dx, Mat_<float>& dy)
 
 void divergence(const Mat_<float>& v1, const Mat_<float>& v2, Mat_<float>& div)
 {
-    CV_DbgAssert( v1.rows > 2 && v1.cols > 2 );
-    CV_DbgAssert( v2.size() == v1.size() );
-    CV_DbgAssert( div.size() == v1.size() );
+//    CV_DbgAssert( v1.rows > 2 && v1.cols > 2 );
+//    CV_DbgAssert( v2.size() == v1.size() );
+//    CV_DbgAssert( div.size() == v1.size() );
 
     for (int y = 1; y < v1.rows; y++)
     {
@@ -230,13 +230,13 @@ void divergence(const Mat_<float>& v1, const Mat_<float>& v2, Mat_<float>& div)
 void calcGradRho(const Mat_<float>& I0, const Mat_<float>& I1w, const Mat_<float>& I1wx, const Mat_<float>& I1wy, const Mat_<float>& u1, const Mat_<float>& u2,
                  Mat_<float>& grad, Mat_<float>& rho_c)
 {
-    CV_DbgAssert( I1w.size() == I0.size() );
-    CV_DbgAssert( I1wx.size() == I0.size() );
-    CV_DbgAssert( I1wy.size() == I0.size() );
-    CV_DbgAssert( u1.size() == I0.size() );
-    CV_DbgAssert( u2.size() == I0.size() );
-    CV_DbgAssert( grad.size() == I0.size() );
-    CV_DbgAssert( rho_c.size() == I0.size() );
+//    CV_DbgAssert( I1w.size() == I0.size() );
+//    CV_DbgAssert( I1wx.size() == I0.size() );
+//    CV_DbgAssert( I1wy.size() == I0.size() );
+//    CV_DbgAssert( u1.size() == I0.size() );
+//    CV_DbgAssert( u2.size() == I0.size() );
+//    CV_DbgAssert( grad.size() == I0.size() );
+//    CV_DbgAssert( rho_c.size() == I0.size() );
 
     for (int y = 0; y < I0.rows; y++)
     {
@@ -270,13 +270,13 @@ void calcGradRho(const Mat_<float>& I0, const Mat_<float>& I1w, const Mat_<float
 void estimateV(const Mat_<float>& I1wx, const Mat_<float>& I1wy, const Mat_<float>& u1, const Mat_<float>& u2,
                const Mat_<float>& grad, const Mat_<float>& rho_c, Mat_<float>& v1, Mat_<float>& v2, float l_t)
 {
-    CV_DbgAssert( I1wy.size() == I1wx.size() );
-    CV_DbgAssert( u1.size() == I1wx.size() );
-    CV_DbgAssert( u2.size() == I1wx.size() );
-    CV_DbgAssert( grad.size() == I1wx.size() );
-    CV_DbgAssert( rho_c.size() == I1wx.size() );
-    CV_DbgAssert( v1.size() == I1wx.size() );
-    CV_DbgAssert( v2.size() == I1wx.size() );
+//    CV_DbgAssert( I1wy.size() == I1wx.size() );
+//    CV_DbgAssert( u1.size() == I1wx.size() );
+//    CV_DbgAssert( u2.size() == I1wx.size() );
+//    CV_DbgAssert( grad.size() == I1wx.size() );
+//    CV_DbgAssert( rho_c.size() == I1wx.size() );
+//    CV_DbgAssert( v1.size() == I1wx.size() );
+//    CV_DbgAssert( v2.size() == I1wx.size() );
 
     for (int y = 0; y < I1wx.rows; y++)
     {
@@ -325,11 +325,11 @@ void estimateV(const Mat_<float>& I1wx, const Mat_<float>& I1wy, const Mat_<floa
 
 float estimateU(const Mat_<float>& v1, const Mat_<float>& v2, const Mat_<float>& div_p1, const Mat_<float>& div_p2, Mat_<float>& u1, Mat_<float>& u2, float theta)
 {
-    CV_DbgAssert( v2.size() == v1.size() );
-    CV_DbgAssert( div_p1.size() == v1.size() );
-    CV_DbgAssert( div_p2.size() == v1.size() );
-    CV_DbgAssert( u1.size() == v1.size() );
-    CV_DbgAssert( u2.size() == v1.size() );
+//    CV_DbgAssert( v2.size() == v1.size() );
+//    CV_DbgAssert( div_p1.size() == v1.size() );
+//    CV_DbgAssert( div_p2.size() == v1.size() );
+//    CV_DbgAssert( u1.size() == v1.size() );
+//    CV_DbgAssert( u2.size() == v1.size() );
 
     float error = 0.0f;
     for (int y = 0; y < v1.rows; ++y)
@@ -363,13 +363,13 @@ float estimateU(const Mat_<float>& v1, const Mat_<float>& v2, const Mat_<float>&
 void estimateDualVariables(const Mat_<float>& u1x, const Mat_<float>& u1y, const Mat_<float>& u2x, const Mat_<float>& u2y,
                            Mat_<float>& p11, Mat_<float>& p12, Mat_<float>& p21, Mat_<float>& p22, float taut)
 {
-    CV_DbgAssert( u1y.size() == u1x.size() );
-    CV_DbgAssert( u2x.size() == u1x.size() );
-    CV_DbgAssert( u2y.size() == u1x.size() );
-    CV_DbgAssert( p11.size() == u1x.size() );
-    CV_DbgAssert( p12.size() == u1x.size() );
-    CV_DbgAssert( p21.size() == u1x.size() );
-    CV_DbgAssert( p22.size() == u1x.size() );
+//    CV_DbgAssert( u1y.size() == u1x.size() );
+//    CV_DbgAssert( u2x.size() == u1x.size() );
+//    CV_DbgAssert( u2y.size() == u1x.size() );
+//    CV_DbgAssert( p11.size() == u1x.size() );
+//    CV_DbgAssert( p12.size() == u1x.size() );
+//    CV_DbgAssert( p21.size() == u1x.size() );
+//    CV_DbgAssert( p22.size() == u1x.size() );
 
     for (int y = 0; y < u1x.rows; y++)
     {
@@ -409,8 +409,8 @@ void my_remap(const Mat_<T>& src, Mat_<T>& dst, const Mat_<float> map1, const Ma
     sum.create(src.size());
     value.create(src.size());
 
-    sum.setTo(Scalar::all(0));
-    value.setTo(Scalar::all(0));
+    sum.setTo(0);
+    value.setTo(0);
 
     for (int y = 0; y < src.rows; y++) {
         for (int x = 0; x < src.cols; x++)
@@ -449,46 +449,47 @@ void my_remap(const Mat_<T>& src, Mat_<T>& dst, const Mat_<float> map1, const Ma
 void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1, Mat_<float>& u2)
 {
 
-    const float scaledEpsilon = static_cast<float>(epsilon * epsilon * I0.size().area());
+    const float scaledEpsilon = epsilon * epsilon * I0.rows * I0.cols;
 
-    CV_DbgAssert( I1.size() == I0.size() );
-    CV_DbgAssert( I1.type() == I0.type() );
-    CV_DbgAssert( u1.size() == I0.size() );
-    CV_DbgAssert( u2.size() == u1.size() );
 
-    Mat_<float> I1x = I1x_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> I1y = I1y_buf(Rect(0, 0, I0.cols, I0.rows));
+//    CV_DbgAssert( I1.size() == I0.size() );
+//    CV_DbgAssert( I1.type() == I0.type() );
+//    CV_DbgAssert( u1.size() == I0.size() );
+//    CV_DbgAssert( u2.size() == u1.size() );
+
+    Mat_<float> I1x(I0.cols, I0.rows);
+    Mat_<float> I1y(I0.cols, I0.rows);
     centeredGradient(I1, I1x, I1y);
 
-    Mat_<float> flowMap1 = flowMap1_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> flowMap2 = flowMap2_buf(Rect(0, 0, I0.cols, I0.rows));
+    Mat_<float> flowMap1(I0.cols, I0.rows);
+    Mat_<float> flowMap2(I0.cols, I0.rows);
 
-    Mat_<float> I1w = I1w_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> I1wx = I1wx_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> I1wy = I1wy_buf(Rect(0, 0, I0.cols, I0.rows));
+    Mat_<float> I1w(I0.cols, I0.rows);
+    Mat_<float> I1wx(I0.cols, I0.rows);
+    Mat_<float> I1wy(I0.cols, I0.rows);
 
-    Mat_<float> grad = grad_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> rho_c = rho_c_buf(Rect(0, 0, I0.cols, I0.rows));
+    Mat_<float> grad(I0.cols, I0.rows);
+    Mat_<float> rho_c(I0.cols, I0.rows);
 
-    Mat_<float> v1 = v1_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> v2 = v2_buf(Rect(0, 0, I0.cols, I0.rows));
+    Mat_<float> v1(I0.cols, I0.rows);
+    Mat_<float> v2(I0.cols, I0.rows);
 
-    Mat_<float> p11 = p11_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> p12 = p12_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> p21 = p21_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> p22 = p22_buf(Rect(0, 0, I0.cols, I0.rows));
-    p11.setTo(Scalar::all(0));
-    p12.setTo(Scalar::all(0));
-    p21.setTo(Scalar::all(0));
-    p22.setTo(Scalar::all(0));
+    Mat_<float> p11(I0.cols, I0.rows);
+    Mat_<float> p12(I0.cols, I0.rows);
+    Mat_<float> p21(I0.cols, I0.rows);
+    Mat_<float> p22(I0.cols, I0.rows);
+    p11.setTo(0);
+    p12.setTo(0);
+    p21.setTo(0);
+    p22.setTo(0);
 
-    Mat_<float> div_p1 = div_p1_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> div_p2 = div_p2_buf(Rect(0, 0, I0.cols, I0.rows));
+    Mat_<float> div_p1(I0.cols, I0.rows);
+    Mat_<float> div_p2(I0.cols, I0.rows);
 
-    Mat_<float> u1x = u1x_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> u1y = u1y_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> u2x = u2x_buf(Rect(0, 0, I0.cols, I0.rows));
-    Mat_<float> u2y = u2y_buf(Rect(0, 0, I0.cols, I0.rows));
+    Mat_<float> u1x(I0.cols, I0.rows);
+    Mat_<float> u1y(I0.cols, I0.rows);
+    Mat_<float> u2x(I0.cols, I0.rows);
+    Mat_<float> u2y(I0.cols, I0.rows);
 
     const float l_t = static_cast<float>(lambda * theta);
     const float taut = static_cast<float>(tau / theta);
@@ -509,9 +510,9 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
 
 //        printf("before remap ...");
 //        cout << flowMap1 << endl;
-        remap(I1, I1w, flowMap1, flowMap2, INTER_CUBIC);
-        remap(I1x, I1wx, flowMap1, flowMap2, INTER_CUBIC);
-        remap(I1y, I1wy, flowMap1, flowMap2, INTER_CUBIC);
+//        remap(I1, I1w, flowMap1, flowMap2, INTER_CUBIC);
+//        remap(I1x, I1wx, flowMap1, flowMap2, INTER_CUBIC);
+//        remap(I1y, I1wy, flowMap1, flowMap2, INTER_CUBIC);
 
 //        printf("warpings = %d\n", warpings);
 //        cv::imshow("I1", I1);
@@ -587,13 +588,10 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
     }
 }
 
-void calc(const Mat &I0, const Mat &I1, Mat_<Point2f> &flow)
+void calc(const Mat_<float> &I0, const Mat_<float> &I1, Mat_<float> &flow1, Mat_<float> &flow2)
 {
 
-    CV_Assert( I0.type() == CV_8UC1 || I0.type() == CV_32FC1 );
-    CV_Assert( I0.size() == I1.size() );
-    CV_Assert( I0.type() == I1.type() );
-    CV_Assert( nscales > 0 );
+//    CV_Assert( nscales > 0 );
 
     // allocate memory for the pyramid structure
     I0s.resize(nscales);
@@ -601,8 +599,8 @@ void calc(const Mat &I0, const Mat &I1, Mat_<Point2f> &flow)
     u1s.resize(nscales);
     u2s.resize(nscales);
 
-    I0.convertTo(I0s[0], I0s[0].depth(), I0.depth() == CV_8U ? 1.0 : 255.0);
-    I1.convertTo(I1s[0], I1s[0].depth(), I1.depth() == CV_8U ? 1.0 : 255.0);
+//    I0.convertTo(I0s[0], I0s[0].depth(), I0.depth() == CV_8U ? 1.0 : 255.0);
+//    I1.convertTo(I1s[0], I1s[0].depth(), I1.depth() == CV_8U ? 1.0 : 255.0);
 
     u1s[0].create(I0.size());
     u2s[0].create(I0.size());
@@ -639,8 +637,8 @@ void calc(const Mat &I0, const Mat &I1, Mat_<Point2f> &flow)
     // create the scales
     for (int s = 1; s < nscales; ++s)
     {
-        pyrDown(I0s[s - 1], I0s[s]);
-        pyrDown(I1s[s - 1], I1s[s]);
+//        pyrDown(I0s[s - 1], I0s[s]);
+//        pyrDown(I1s[s - 1], I1s[s]);
 
 //        if (I0s[s].cols < 16 || I0s[s].rows < 16)
 //        {
@@ -652,8 +650,8 @@ void calc(const Mat &I0, const Mat &I1, Mat_<Point2f> &flow)
         u2s[s].create(I0s[s].size());
     }
 
-    u1s[nscales-1].setTo(Scalar::all(0));
-    u2s[nscales-1].setTo(Scalar::all(0));
+    u1s[nscales-1].setTo(0);
+    u2s[nscales-1].setTo(0);
 
     // pyramidal structure for computing the optical flow
     for (int s = nscales - 1; s >= 0; --s)
@@ -671,21 +669,21 @@ void calc(const Mat &I0, const Mat &I1, Mat_<Point2f> &flow)
         // otherwise, upsample the optical flow
 
         // zoom the optical flow for the next finer scale
-        resize(u1s[s], u1s[s - 1], I0s[s - 1].size());
-        resize(u2s[s], u2s[s - 1], I0s[s - 1].size());
+//        resize(u1s[s], u1s[s - 1], I0s[s - 1].size());
+//        resize(u2s[s], u2s[s - 1], I0s[s - 1].size());
 
         // scale the optical flow with the appropriate zoom factor
-        multiply(u1s[s - 1], Scalar::all(2), u1s[s - 1]);
-        multiply(u2s[s - 1], Scalar::all(2), u2s[s - 1]);
+//        multiply(u1s[s - 1], Scalar::all(2), u1s[s - 1]);
+//        multiply(u2s[s - 1], Scalar::all(2), u2s[s - 1]);
     }
 
-    flow.create(u1s[0].size());
-    for (int i = 0; i < u1s[0].rows; i++)
-        for (int j = 0; j < u1s[0].cols; j++)
-        {
-            flow(i, j).x = u1s[0](i, j);
-            flow(i, j).y = u2s[0](i, j);
-        }
+//    flow.create(u1s[0].size());
+//    for (int i = 0; i < u1s[0].rows; i++)
+//        for (int j = 0; j < u1s[0].cols; j++)
+//        {
+//            flow(i, j).x = u1s[0](i, j);
+//            flow(i, j).y = u2s[0](i, j);
+//        }
 
 }
 
@@ -696,18 +694,18 @@ int main(int argc, char **argv) {
     curr_bmp.file_read((img_path + "1.bmp").c_str());
 
     BMP_output(curr_bmp);
-    cv::Mat curr_img(curr_bmp.info.Height, curr_bmp.info.Width, CV_8UC3);
-
-    for (int i = 0; i < curr_bmp.info.Height; i++)
-        for (int j = 0; j < curr_bmp.info.Width; j++)
-        {
-            int rgb = curr_bmp.get_color(j, i);
-            curr_img.at<cv::Vec3b>(i, j)[0] = rgb & 0xFF;
-            curr_img.at<cv::Vec3b>(i, j)[1] = (rgb >> 8) & 0xFF;
-            curr_img.at<cv::Vec3b>(i, j)[2] = (rgb >> 16) & 0xFF;
-        }
-    cv::imshow("img", curr_img);
-    cv::waitKey(0);
+//    cv::Mat curr_img(curr_bmp.info.Height, curr_bmp.info.Width, CV_8UC3);
+//
+//    for (int i = 0; i < curr_bmp.info.Height; i++)
+//        for (int j = 0; j < curr_bmp.info.Width; j++)
+//        {
+//            int rgb = curr_bmp.get_color(j, i);
+//            curr_img.at<cv::Vec3b>(i, j)[0] = rgb & 0xFF;
+//            curr_img.at<cv::Vec3b>(i, j)[1] = (rgb >> 8) & 0xFF;
+//            curr_img.at<cv::Vec3b>(i, j)[2] = (rgb >> 16) & 0xFF;
+//        }
+//    cv::imshow("img", curr_img);
+//    cv::waitKey(0);
 
     curr_bmp.file_write((img_path + "test.bmp").c_str());
 

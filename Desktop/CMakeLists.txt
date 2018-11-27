@@ -9,6 +9,6 @@ find_package( OpenCV REQUIRED )
 
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-add_executable( FPGA_TVL1_algorithm main.cpp BMP.cpp Mat.cpp)
+add_executable( FPGA_TVL1_algorithm main.cpp BMP.cpp)
 
 target_link_libraries( FPGA_TVL1_algorithm ${OpenCV_LIBS} )
