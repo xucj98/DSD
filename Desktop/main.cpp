@@ -457,39 +457,39 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
 //    CV_DbgAssert( u1.size() == I0.size() );
 //    CV_DbgAssert( u2.size() == u1.size() );
 
-    Mat_<float> I1x(I0.cols, I0.rows);
-    Mat_<float> I1y(I0.cols, I0.rows);
+    Mat_<float> I1x(I0.rows, I0.cols);
+    Mat_<float> I1y(I0.rows, I0.cols);
     centeredGradient(I1, I1x, I1y);
 
-    Mat_<float> flowMap1(I0.cols, I0.rows);
-    Mat_<float> flowMap2(I0.cols, I0.rows);
+    Mat_<float> flowMap1(I0.rows, I0.cols);
+    Mat_<float> flowMap2(I0.rows, I0.cols);
 
-    Mat_<float> I1w(I0.cols, I0.rows);
-    Mat_<float> I1wx(I0.cols, I0.rows);
-    Mat_<float> I1wy(I0.cols, I0.rows);
+    Mat_<float> I1w(I0.rows, I0.cols);
+    Mat_<float> I1wx(I0.rows, I0.cols);
+    Mat_<float> I1wy(I0.rows, I0.cols);
 
-    Mat_<float> grad(I0.cols, I0.rows);
-    Mat_<float> rho_c(I0.cols, I0.rows);
+    Mat_<float> grad(I0.rows, I0.cols);
+    Mat_<float> rho_c(I0.rows, I0.cols);
 
-    Mat_<float> v1(I0.cols, I0.rows);
-    Mat_<float> v2(I0.cols, I0.rows);
+    Mat_<float> v1(I0.rows, I0.cols);
+    Mat_<float> v2(I0.rows, I0.cols);
 
-    Mat_<float> p11(I0.cols, I0.rows);
-    Mat_<float> p12(I0.cols, I0.rows);
-    Mat_<float> p21(I0.cols, I0.rows);
-    Mat_<float> p22(I0.cols, I0.rows);
+    Mat_<float> p11(I0.rows, I0.cols);
+    Mat_<float> p12(I0.rows, I0.cols);
+    Mat_<float> p21(I0.rows, I0.cols);
+    Mat_<float> p22(I0.rows, I0.cols);
     p11.setTo(0);
     p12.setTo(0);
     p21.setTo(0);
     p22.setTo(0);
 
-    Mat_<float> div_p1(I0.cols, I0.rows);
-    Mat_<float> div_p2(I0.cols, I0.rows);
+    Mat_<float> div_p1(I0.rows, I0.cols);
+    Mat_<float> div_p2(I0.rows, I0.cols);
 
-    Mat_<float> u1x(I0.cols, I0.rows);
-    Mat_<float> u1y(I0.cols, I0.rows);
-    Mat_<float> u2x(I0.cols, I0.rows);
-    Mat_<float> u2y(I0.cols, I0.rows);
+    Mat_<float> u1x(I0.rows, I0.cols);
+    Mat_<float> u1y(I0.rows, I0.cols);
+    Mat_<float> u2x(I0.rows, I0.cols);
+    Mat_<float> u2y(I0.rows, I0.cols);
 
     const float l_t = static_cast<float>(lambda * theta);
     const float taut = static_cast<float>(tau / theta);
@@ -499,6 +499,8 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
 
     for (int warpings = 0; warpings < warps; ++warpings)
     {
+        printf("warping: %d\n", warpings);
+
         // compute the warping of the target image and its derivatives
         buildFlowMap(u1, u2, flowMap1, flowMap2);
 //        my_remap<float>(I1, I1w, flowMap1, flowMap2);
@@ -508,63 +510,65 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
 //        flowMap1.convertTo(flowMap1_, CV_32F);
 //        flowMap2.convertTo(flowMap2_, CV_32F)
 
-//        printf("before remap ...");
-//        cout << flowMap1 << endl;
-//        remap(I1, I1w, flowMap1, flowMap2, INTER_CUBIC);
-//        remap(I1x, I1wx, flowMap1, flowMap2, INTER_CUBIC);
-//        remap(I1y, I1wy, flowMap1, flowMap2, INTER_CUBIC);
+        printf("before remap ...");
+        remap(I1, I1w, flowMap1, flowMap2, INTER_CUBIC);
+        remap(I1x, I1wx, flowMap1, flowMap2, INTER_CUBIC);
+        remap(I1y, I1wy, flowMap1, flowMap2, INTER_CUBIC);
 
-//        printf("warpings = %d\n", warpings);
+        printf("after remap ...");
 //        cv::imshow("I1", I1);
 //        cv::imshow("I1w", I1w);
 //        cv::waitKey(0);
 
         // rho = I1(x + u) - I1(x + u) * u - I0(x)
         calcGradRho(I0, I1w, I1wx, I1wy, u1, u2, grad, rho_c);
+        printf("calc gard rho ...");
 
-//        for (int sy = 0; sy < I0.rows; sy += block_y){
-//            for (int sx = 0; sx < I0.cols; sx += block_x) {
-//                float error = 1e7;
-//
-//                Mat_<float> I1wx_ = I1wx(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> I1wy_ = I1wy(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> u1_ = u1(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> u2_ = u2(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> grad_ = grad(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> rho_c_ = rho_c(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> v1_ = v1(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> v2_ = v2(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> p11_ = p11(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> p12_ = p12(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> p21_ = p21(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> p22_ = p22(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> div_p1_ = div_p1(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> div_p2_ = div_p2(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> u1x_ = u1x(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> u1y_ = u1y(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> u2x_ = u2x(Rect(sx, sy, block_x, block_y));
-//                Mat_<float> u2y_ = u2y(Rect(sx, sy, block_x, block_y));
-//
-//                for (int n = 0; error > scaledEpsilon && n < iterations; ++n) {
-//                    // estimate the values of the variable (v1, v2) (thresholding operator TH)
-//                    estimateV(I1wx_, I1wy_, u1_, u2_, grad_, rho_c_, v1_, v2_, l_t);
-//
-//                    // compute the divergence of the dual variable (p1, p2)
-//                    divergence(p11_, p12_, div_p1_);
-//                    divergence(p21_, p22_, div_p2_);
-//
-//                    // estimate the values of the optical flow (u1, u2)
-//                    error = estimateU(v1_, v2_, div_p1_, div_p2_, u1_, u2_, static_cast<float>(theta));
-//
-//                    // compute the gradient of the optical flow (Du1, Du2)
-//                    forwardGradient(u1_, u1x_, u1y_);
-//                    forwardGradient(u2_, u2x_, u2y_);
-//
-//                    // estimate the values of the dual variable (p1, p2)
-//                    estimateDualVariables(u1x_, u1y_, u2x_, u2y_, p11_, p12_, p21_, p22_, taut);
-//                }
-//            }
-//        }
+        cout << I0.size() << ' ' << I1.size() << I1w.size() << endl;
+
+        for (int sy = 0; sy < I0.rows; sy += block_y){
+            for (int sx = 0; sx < I0.cols; sx += block_x) {
+                float error = 1e7;
+
+                Mat_<float> I1wx_ = I1wx(Rect(sx, sy, block_x, block_y));
+                Mat_<float> I1wy_ = I1wy(Rect(sx, sy, block_x, block_y));
+                Mat_<float> u1_ = u1(Rect(sx, sy, block_x, block_y));
+                Mat_<float> u2_ = u2(Rect(sx, sy, block_x, block_y));
+                Mat_<float> grad_ = grad(Rect(sx, sy, block_x, block_y));
+                Mat_<float> rho_c_ = rho_c(Rect(sx, sy, block_x, block_y));
+                Mat_<float> v1_ = v1(Rect(sx, sy, block_x, block_y));
+                Mat_<float> v2_ = v2(Rect(sx, sy, block_x, block_y));
+                Mat_<float> p11_ = p11(Rect(sx, sy, block_x, block_y));
+                Mat_<float> p12_ = p12(Rect(sx, sy, block_x, block_y));
+                Mat_<float> p21_ = p21(Rect(sx, sy, block_x, block_y));
+                Mat_<float> p22_ = p22(Rect(sx, sy, block_x, block_y));
+                Mat_<float> div_p1_ = div_p1(Rect(sx, sy, block_x, block_y));
+                Mat_<float> div_p2_ = div_p2(Rect(sx, sy, block_x, block_y));
+                Mat_<float> u1x_ = u1x(Rect(sx, sy, block_x, block_y));
+                Mat_<float> u1y_ = u1y(Rect(sx, sy, block_x, block_y));
+                Mat_<float> u2x_ = u2x(Rect(sx, sy, block_x, block_y));
+                Mat_<float> u2y_ = u2y(Rect(sx, sy, block_x, block_y));
+
+                for (int n = 0; error > scaledEpsilon && n < iterations; ++n) {
+                    // estimate the values of the variable (v1, v2) (thresholding operator TH)
+                    estimateV(I1wx_, I1wy_, u1_, u2_, grad_, rho_c_, v1_, v2_, l_t);
+
+                    // compute the divergence of the dual variable (p1, p2)
+                    divergence(p11_, p12_, div_p1_);
+                    divergence(p21_, p22_, div_p2_);
+
+                    // estimate the values of the optical flow (u1, u2)
+                    error = estimateU(v1_, v2_, div_p1_, div_p2_, u1_, u2_, static_cast<float>(theta));
+
+                    // compute the gradient of the optical flow (Du1, Du2)
+                    forwardGradient(u1_, u1x_, u1y_);
+                    forwardGradient(u2_, u2x_, u2y_);
+
+                    // estimate the values of the dual variable (p1, p2)
+                    estimateDualVariables(u1x_, u1y_, u2x_, u2y_, p11_, p12_, p21_, p22_, taut);
+                }
+            }
+        }
 
         float error = 1e7;
         for (int n = 0; error > scaledEpsilon && n < iterations; ++n) {
@@ -588,7 +592,7 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
     }
 }
 
-void calc(const Mat_<float> &I0, const Mat_<float> &I1, Mat_<float> &flow1, Mat_<float> &flow2)
+void calc(const Mat_<float> &I0, const Mat_<float> &I1, Mat_<cv::Point2f> &flow)
 {
 
 //    CV_Assert( nscales > 0 );
@@ -599,8 +603,8 @@ void calc(const Mat_<float> &I0, const Mat_<float> &I1, Mat_<float> &flow1, Mat_
     u1s.resize(nscales);
     u2s.resize(nscales);
 
-//    I0.convertTo(I0s[0], I0s[0].depth(), I0.depth() == CV_8U ? 1.0 : 255.0);
-//    I1.convertTo(I1s[0], I1s[0].depth(), I1.depth() == CV_8U ? 1.0 : 255.0);
+    I0.convertTo(I0s[0], I0s[0].depth(), I0.depth() == CV_8U ? 1.0 : 255.0);
+    I1.convertTo(I1s[0], I1s[0].depth(), I1.depth() == CV_8U ? 1.0 : 255.0);
 
     u1s[0].create(I0.size());
     u2s[0].create(I0.size());
@@ -637,8 +641,8 @@ void calc(const Mat_<float> &I0, const Mat_<float> &I1, Mat_<float> &flow1, Mat_
     // create the scales
     for (int s = 1; s < nscales; ++s)
     {
-//        pyrDown(I0s[s - 1], I0s[s]);
-//        pyrDown(I1s[s - 1], I1s[s]);
+        pyrDown(I0s[s - 1], I0s[s]);
+        pyrDown(I1s[s - 1], I1s[s]);
 
 //        if (I0s[s].cols < 16 || I0s[s].rows < 16)
 //        {
@@ -660,7 +664,6 @@ void calc(const Mat_<float> &I0, const Mat_<float> &I1, Mat_<float> &flow1, Mat_
 
         // compute the optical flow at the current scale
         procOneScale(I0s[s], I1s[s], u1s[s], u2s[s]);
-//        printf("");
 
         // if this was the last scale, finish now
         if (s == 0)
@@ -669,21 +672,21 @@ void calc(const Mat_<float> &I0, const Mat_<float> &I1, Mat_<float> &flow1, Mat_
         // otherwise, upsample the optical flow
 
         // zoom the optical flow for the next finer scale
-//        resize(u1s[s], u1s[s - 1], I0s[s - 1].size());
-//        resize(u2s[s], u2s[s - 1], I0s[s - 1].size());
+        resize(u1s[s], u1s[s - 1], I0s[s - 1].size());
+        resize(u2s[s], u2s[s - 1], I0s[s - 1].size());
 
         // scale the optical flow with the appropriate zoom factor
-//        multiply(u1s[s - 1], Scalar::all(2), u1s[s - 1]);
-//        multiply(u2s[s - 1], Scalar::all(2), u2s[s - 1]);
+        multiply(u1s[s - 1], Scalar::all(2), u1s[s - 1]);
+        multiply(u2s[s - 1], Scalar::all(2), u2s[s - 1]);
     }
 
-//    flow.create(u1s[0].size());
-//    for (int i = 0; i < u1s[0].rows; i++)
-//        for (int j = 0; j < u1s[0].cols; j++)
-//        {
-//            flow(i, j).x = u1s[0](i, j);
-//            flow(i, j).y = u2s[0](i, j);
-//        }
+    flow.create(u1s[0].size());
+    for (int i = 0; i < u1s[0].rows; i++)
+        for (int j = 0; j < u1s[0].cols; j++)
+        {
+            flow(i, j).x = u1s[0](i, j);
+            flow(i, j).y = u2s[0](i, j);
+        }
 
 }
 
@@ -751,12 +754,12 @@ int main(int argc, char **argv) {
 //        printf("before calc...\n");
 //
 //        int t = clock();
-//        calc(prev_img, curr_img, flow);
+        calc(prev_img, curr_img, flow);
 //        printf("calc: %d\n", clock() - t);
-//
+
 //        t = clock();
-        cv::Ptr<cv::DenseOpticalFlow> tvl1 = cv::createOptFlow_DualTVL1();
-        tvl1->calc(prev_img, curr_img, cv_flow);
+//        cv::Ptr<cv::DenseOpticalFlow> tvl1 = cv::createOptFlow_DualTVL1();
+//        tvl1->calc(prev_img, curr_img, cv_flow);
 //        printf("opencv calc: %d\n", clock() - t);
 
 //        for (int y = 0; y < 480; y++)
@@ -782,8 +785,8 @@ int main(int argc, char **argv) {
             int x = kpts[j].x;
             int y = kpts[j].y;
 
-            kpts[j].x += cv_flow(y, x).x;
-            kpts[j].y += cv_flow(y, x).y;
+            kpts[j].x += flow(y, x).x;
+            kpts[j].y += flow(y, x).y;
 
             if (kpts[j].x > 0 && kpts[j].x < 640 && kpts[j].y > 0 && kpts[j].y < 480) {
                 kpts[cnt] = kpts[j];
@@ -795,8 +798,8 @@ int main(int argc, char **argv) {
         }
         kpts.resize(cnt);
 
-        // cv::imshow("img", show_img);
-        // cv::waitKey(0);
+//        cv::imshow("img", show_img);
+//        cv::waitKey(0);
         cv::imwrite(img_path + "res" + std::to_string(i) + ".jpg", show_img);
         prev_img.release();
         show_img.release();
