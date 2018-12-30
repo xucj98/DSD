@@ -494,8 +494,8 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
     const float l_t = static_cast<float>(lambda * theta);
     const float taut = static_cast<float>(tau / theta);
 
-    int block_x = min(640, I0.cols);
-    int block_y = min(480, I0.rows);
+    int block_x = min(40, I0.cols);
+    int block_y = min(30, I0.rows);
 
     for (int warpings = 0; warpings < warps; ++warpings)
     {
@@ -528,6 +528,7 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
 
         for (int sy = 0; sy < I0.rows; sy += block_y){
             for (int sx = 0; sx < I0.cols; sx += block_x) {
+
                 float error = 1e7;
 
                 Mat_<float> I1wx_ = I1wx(Rect(sx, sy, block_x, block_y));
@@ -549,6 +550,31 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
                 Mat_<float> u2x_ = u2x(Rect(sx, sy, block_x, block_y));
                 Mat_<float> u2y_ = u2y(Rect(sx, sy, block_x, block_y));
 
+                cout << "u1: \n" << u1_;
+
+                // get test data
+                if (sx == 0 && sy == 0)
+                {
+                    const std::string data_path = "../../Dataset/";
+                    FILE *fout, *fin;
+                    fout = fopen((data_path + "data.in").c_str(), "wb");
+                    for (int i = 0; i < block_y; i++)
+                    {
+                        fwrite(I1wx_[i], 4, block_x, fout);
+                        fwrite(I1wy_[i], 4, block_x, fout);
+                        fwrite(u1_[i], 4, block_x, fout);
+                        fwrite(u2_[i], 4, block_x, fout);
+                        fwrite(grad_[i], 4, block_x, fout);
+                        fwrite(rho_c_[i], 4, block_x, fout);
+                        fwrite(p11_[i], 4, block_x, fout);
+                        fwrite(p12_[i], 4, block_x, fout);
+                        fwrite(p21_[i], 4, block_x, fout);
+                        fwrite(p22_[i], 4, block_x, fout);
+                    }
+                    fclose(fout);
+
+                }
+
                 for (int n = 0; error > scaledEpsilon && n < iterations; ++n) {
                     // estimate the values of the variable (v1, v2) (thresholding operator TH)
                     estimateV(I1wx_, I1wy_, u1_, u2_, grad_, rho_c_, v1_, v2_, l_t);
@@ -567,28 +593,48 @@ void procOneScale(const Mat_<float>& I0, const Mat_<float>& I1, Mat_<float>& u1,
                     // estimate the values of the dual variable (p1, p2)
                     estimateDualVariables(u1x_, u1y_, u2x_, u2y_, p11_, p12_, p21_, p22_, taut);
                 }
+
+                if (sx == 0 && sy == 0)
+                {
+                    const std::string data_path = "../../Dataset/";
+                    FILE *fout;
+
+                    fout = fopen((data_path + "data.out").c_str(), "wb");
+                    for (int i = 0; i < block_y; i++)
+                    {
+                        fwrite(u1_[i], 4, block_x, fout);
+                        fwrite(u2_[i], 4, block_x, fout);
+                        fwrite(p11_[i], 4, block_x, fout);
+                        fwrite(p12_[i], 4, block_x, fout);
+                        fwrite(p21_[i], 4, block_x, fout);
+                        fwrite(p22_[i], 4, block_x, fout);
+                    }
+                    fclose(fout);
+
+                    while(1);
+                }
             }
         }
 
-        float error = 1e7;
-        for (int n = 0; error > scaledEpsilon && n < iterations; ++n) {
-            // estimate the values of the variable (v1, v2) (thresholding operator TH)
-            estimateV(I1wx, I1wy, u1, u2, grad, rho_c, v1, v2, l_t);
-
-            // compute the divergence of the dual variable (p1, p2)
-            divergence(p11, p12, div_p1);
-            divergence(p21, p22, div_p2);
-
-            // estimate the values of the optical flow (u1, u2)
-            error = estimateU(v1, v2, div_p1, div_p2, u1, u2, static_cast<float>(theta));
-
-            // compute the gradient of the optical flow (Du1, Du2)
-            forwardGradient(u1, u1x, u1y);
-            forwardGradient(u2, u2x, u2y);
-
-            // estimate the values of the dual variable (p1, p2)
-            estimateDualVariables(u1x, u1y, u2x, u2y, p11, p12, p21, p22, taut);
-        }
+//        float error = 1e7;
+//        for (int n = 0; error > scaledEpsilon && n < iterations; ++n) {
+//            // estimate the values of the variable (v1, v2) (thresholding operator TH)
+//            estimateV(I1wx, I1wy, u1, u2, grad, rho_c, v1, v2, l_t);
+//
+//            // compute the divergence of the dual variable (p1, p2)
+//            divergence(p11, p12, div_p1);
+//            divergence(p21, p22, div_p2);
+//
+//            // estimate the values of the optical flow (u1, u2)
+//            error = estimateU(v1, v2, div_p1, div_p2, u1, u2, static_cast<float>(theta));
+//
+//            // compute the gradient of the optical flow (Du1, Du2)
+//            forwardGradient(u1, u1x, u1y);
+//            forwardGradient(u2, u2x, u2y);
+//
+//            // estimate the values of the dual variable (p1, p2)
+//            estimateDualVariables(u1x, u1y, u2x, u2y, p11, p12, p21, p22, taut);
+//        }
     }
 }
 
@@ -800,7 +846,7 @@ int main(int argc, char **argv) {
 
 //        cv::imshow("img", show_img);
 //        cv::waitKey(0);
-        cv::imwrite(img_path + "res" + std::to_string(i) + ".jpg", show_img);
+        cv::imwrite(img_path + "resu" + std::to_string(i) + ".jpg", show_img);
         prev_img.release();
         show_img.release();
 
