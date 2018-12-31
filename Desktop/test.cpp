@@ -21,31 +21,31 @@ float epsilon        = 0.01;
 int iterations     = 300;
 bool useInitialFlow = false;
 
-Mat_<float> I1wx_(30, 40);
-Mat_<float> I1wy_(30, 40);
-Mat_<float> u1_(30, 40);
-Mat_<float> u2_(30, 40);
-Mat_<float> grad_(30, 40);
-Mat_<float> rho_c_(30, 40);
-Mat_<float> v1_(30, 40);
-Mat_<float> v2_(30, 40);
-Mat_<float> p11_(30, 40);
-Mat_<float> p12_(30, 40);
-Mat_<float> p21_(30, 40);
-Mat_<float> p22_(30, 40);
-Mat_<float> div_p1_(30, 40);
-Mat_<float> div_p2_(30, 40);
-Mat_<float> u1x_(30, 40);
-Mat_<float> u1y_(30, 40);
-Mat_<float> u2x_(30, 40);
-Mat_<float> u2y_(30, 40);
+float I1wx_[30][40];
+float I1wy_[30][40];
+float u1_[30][40];
+float u2_[30][40];
+float grad_[30][40];
+float rho_c_[30][40];
+float v1_[30][40];
+float v2_[30][40];
+float p11_[30][40];
+float p12_[30][40];
+float p21_[30][40];
+float p22_[30][40];
+float div_p1_[30][40];
+float div_p2_[30][40];
+float u1x_[30][40];
+float u1y_[30][40];
+float u2x_[30][40];
+float u2y_[30][40];
 
-Mat_<float> ansp11_(30, 40);
-Mat_<float> ansp12_(30, 40);
-Mat_<float> ansp21_(30, 40);
-Mat_<float> ansp22_(30, 40);
-Mat_<float> ansu1_(30, 40);
-Mat_<float> ansu2_(30, 40);
+float ansp11_[30][40];
+float ansp12_[30][40];
+float ansp21_[30][40];
+float ansp22_[30][40];
+float ansu1_[30][40];
+float ansu2_[30][40];
 
 const int block_x = 40, block_y = 30;
 const float scaledEpsilon = epsilon * epsilon * block_x * block_y;
@@ -56,14 +56,14 @@ const float taut = tau / theta;
 // forwardGradient
 
 
-void forwardGradient(const Mat_<float>& src, Mat_<float>& dx, Mat_<float>& dy)
+void forwardGradient(const float (*src)[40], float (*dx)[40], float (*dy)[40])
 {
 //    CV_DbgAssert( src.rows > 2 && src.cols > 2 );
 //    CV_DbgAssert( dx.size() == src.size() );
 //    CV_DbgAssert( dy.size() == src.size() );
 
-    const int last_row = src.rows - 1;
-    const int last_col = src.cols - 1;
+    const int last_row = 30 - 1;
+    const int last_col = 40 - 1;
 
     // compute the gradient on the central body of the image
 
@@ -85,31 +85,31 @@ void forwardGradient(const Mat_<float>& src, Mat_<float>& dx, Mat_<float>& dy)
     // compute the gradient on the last row
     for (int x = 0; x < last_col; ++x)
     {
-        dx(last_row, x) = src(last_row, x + 1) - src(last_row, x);
-        dy(last_row, x) = 0.0f;
+        dx[last_row][x] = src[last_row][x + 1] - src[last_row][x];
+        dy[last_row][x] = 0.0f;
     }
 
     // compute the gradient on the last column
     for (int y = 0; y < last_row; ++y)
     {
-        dx(y, last_col) = 0.0f;
-        dy(y, last_col) = src(y + 1, last_col) - src(y, last_col);
+        dx[y][last_col] = 0.0f;
+        dy[y][last_col] = src[y + 1][last_col] - src[y][last_col];
     }
 
-    dx(last_row, last_col) = 0.0f;
-    dy(last_row, last_col) = 0.0f;
+    dx[last_row][last_col] = 0.0f;
+    dy[last_row][last_col] = 0.0f;
 }
 
 ////////////////////////////////////////////////////////////
 // divergence
 
-void divergence(const Mat_<float>& v1, const Mat_<float>& v2, Mat_<float>& div)
+void divergence(const float (*v1)[40], const float (*v2)[40], float (*div)[40])
 {
 //    CV_DbgAssert( v1.rows > 2 && v1.cols > 2 );
 //    CV_DbgAssert( v2.size() == v1.size() );
 //    CV_DbgAssert( div.size() == v1.size() );
 
-    for (int y = 1; y < v1.rows; y++)
+    for (int y = 1; y < 30; y++)
     {
         const float* v1Row = v1[y];
         const float* v2PrevRow = v2[y - 1];
@@ -117,7 +117,7 @@ void divergence(const Mat_<float>& v1, const Mat_<float>& v2, Mat_<float>& div)
 
         float* divRow = div[y];
 
-        for(int x = 1; x < v1.cols; ++x)
+        for(int x = 1; x < 40; ++x)
         {
             const float v1x = v1Row[x] - v1Row[x - 1];
             const float v2y = v2CurRow[x] - v2PrevRow[x];
@@ -132,8 +132,8 @@ void divergence(const Mat_<float>& v1, const Mat_<float>& v2, Mat_<float>& div)
 ////////////////////////////////////////////////////////////
 // estimateV
 
-void estimateV(const Mat_<float>& I1wx, const Mat_<float>& I1wy, const Mat_<float>& u1, const Mat_<float>& u2,
-               const Mat_<float>& grad, const Mat_<float>& rho_c, Mat_<float>& v1, Mat_<float>& v2, float l_t)
+void estimateV(const float (*I1wx)[40], const float (*I1wy)[40], const float (*u1)[40], const float (*u2)[40],
+               const float (*grad)[40], const float (*rho_c)[40], float (*v1)[40], float (*v2)[40], float l_t)
 {
 //    CV_DbgAssert( I1wy.size() == I1wx.size() );
 //    CV_DbgAssert( u1.size() == I1wx.size() );
@@ -143,7 +143,7 @@ void estimateV(const Mat_<float>& I1wx, const Mat_<float>& I1wy, const Mat_<floa
 //    CV_DbgAssert( v1.size() == I1wx.size() );
 //    CV_DbgAssert( v2.size() == I1wx.size() );
 
-    for (int y = 0; y < I1wx.rows; y++)
+    for (int y = 0; y < 30; y++)
     {
         const float* I1wxRow = I1wx[y];
         const float* I1wyRow = I1wy[y];
@@ -155,7 +155,7 @@ void estimateV(const Mat_<float>& I1wx, const Mat_<float>& I1wy, const Mat_<floa
         float* v1Row = v1[y];
         float* v2Row = v2[y];
 
-        for (int x = 0; x < I1wx.cols; ++x)
+        for (int x = 0; x < 40; ++x)
         {
             const float rho = rhoRow[x] + (I1wxRow[x] * u1Row[x] + I1wyRow[x] * u2Row[x]);
 
@@ -188,7 +188,7 @@ void estimateV(const Mat_<float>& I1wx, const Mat_<float>& I1wy, const Mat_<floa
 ////////////////////////////////////////////////////////////
 // estimateU
 
-float estimateU(const Mat_<float>& v1, const Mat_<float>& v2, const Mat_<float>& div_p1, const Mat_<float>& div_p2, Mat_<float>& u1, Mat_<float>& u2, float theta)
+float estimateU(const float (*v1)[40], const float (*v2)[40], const float (*div_p1)[40], const float (*div_p2)[40], float (*u1)[40], float (*u2)[40], float theta)
 {
 //    CV_DbgAssert( v2.size() == v1.size() );
 //    CV_DbgAssert( div_p1.size() == v1.size() );
@@ -197,7 +197,7 @@ float estimateU(const Mat_<float>& v1, const Mat_<float>& v2, const Mat_<float>&
 //    CV_DbgAssert( u2.size() == v1.size() );
 
     float error = 0.0f;
-    for (int y = 0; y < v1.rows; ++y)
+    for (int y = 0; y < 30; ++y)
     {
         const float* v1Row = v1[y];
         const float* v2Row = v2[y];
@@ -207,7 +207,7 @@ float estimateU(const Mat_<float>& v1, const Mat_<float>& v2, const Mat_<float>&
         float* u1Row = u1[y];
         float* u2Row = u2[y];
 
-        for (int x = 0; x < v1.cols; ++x)
+        for (int x = 0; x < 40; ++x)
         {
             const float u1k = u1Row[x];
             const float u2k = u2Row[x];
@@ -225,8 +225,8 @@ float estimateU(const Mat_<float>& v1, const Mat_<float>& v2, const Mat_<float>&
 ////////////////////////////////////////////////////////////
 // estimateDualVariables
 
-void estimateDualVariables(const Mat_<float>& u1x, const Mat_<float>& u1y, const Mat_<float>& u2x, const Mat_<float>& u2y,
-                           Mat_<float>& p11, Mat_<float>& p12, Mat_<float>& p21, Mat_<float>& p22, float taut)
+void estimateDualVariables(const float (*u1x)[40], const float (*u1y)[40], const float (*u2x)[40], const float (*u2y)[40],
+                           float (*p11)[40], float (*p12)[40], float (*p21)[40], float (*p22)[40], float taut)
 {
 //    CV_DbgAssert( u1y.size() == u1x.size() );
 //    CV_DbgAssert( u2x.size() == u1x.size() );
@@ -236,7 +236,7 @@ void estimateDualVariables(const Mat_<float>& u1x, const Mat_<float>& u1y, const
 //    CV_DbgAssert( p21.size() == u1x.size() );
 //    CV_DbgAssert( p22.size() == u1x.size() );
 
-    for (int y = 0; y < u1x.rows; y++)
+    for (int y = 0; y < 30; y++)
     {
         const float* u1xRow = u1x[y];
         const float* u1yRow = u1y[y];
@@ -248,7 +248,7 @@ void estimateDualVariables(const Mat_<float>& u1x, const Mat_<float>& u1y, const
         float* p21Row = p21[y];
         float* p22Row = p22[y];
 
-        for (int x = 0; x < u1x.cols; ++x)
+        for (int x = 0; x < 40; ++x)
         {
             const float g1 = static_cast<float>(hypot(u1xRow[x], u1yRow[x]));
             const float g2 = static_cast<float>(hypot(u2xRow[x], u2yRow[x]));
@@ -268,7 +268,6 @@ void estimateDualVariables(const Mat_<float>& u1x, const Mat_<float>& u1y, const
 int main()
 {
     FILE *fin, *fout;
-    float a[10], b[10];
 
     fin = fopen((data_path + "data.in").c_str(), "rb");
     for (int i = 0; i < block_y; i++)
