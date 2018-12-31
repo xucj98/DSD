@@ -4,11 +4,10 @@
 
 #include <stdio.h>
 #include <string>
-#include <opencv2/opencv.hpp>
 #include <iostream>
+#include <math.h>
 
 using namespace std;
-using namespace cv;
 
 const std::string data_path = "../../Dataset/";
 
@@ -250,8 +249,8 @@ void estimateDualVariables(const float (*u1x)[40], const float (*u1y)[40], const
 
         for (int x = 0; x < 40; ++x)
         {
-            const float g1 = static_cast<float>(hypot(u1xRow[x], u1yRow[x]));
-            const float g2 = static_cast<float>(hypot(u2xRow[x], u2yRow[x]));
+            const float g1 = hypot(u1xRow[x], u1yRow[x]);
+            const float g2 = hypot(u2xRow[x], u2yRow[x]);
 
             const float ng1  = 1.0f + taut * g1;
             const float ng2  = 1.0f + taut * g2;
